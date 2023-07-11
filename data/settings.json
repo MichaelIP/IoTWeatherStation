@@ -1,0 +1,55 @@
+{
+	"Wifi": {
+		"SSID": "MCP-NETWORK",
+		"Password": "P@ssw0rdCh@nged"
+	},
+	"Mqtt": {
+		"HostName": "192.168.1.215",
+		"Port": 8883,
+		"Channels": [
+			{
+				"Key": "Data",
+				"Value": "McpNetwork/Charli/Plugins/WeatherStation/Data"
+			},
+			{
+				"Key": "Events",
+				"Value": "McpNetwork/Charli/Plugins/WeatherStation/Events"
+			}
+		],
+		"CertificateThumbPrints": [
+			"1234567890"
+		]
+	},
+	"Logger": {
+		"Speed": 115200,
+		"LogLevel": "ALL"
+	},
+	"Device": {
+		"DeviceName": "MiSol-01",
+		"SleepTimeSeconds": 2,
+		"Sensors": [
+			{
+				"SensorName": "Wh1080x",
+				"PinLayout": [
+					{
+						"Key": "GD0",
+						"Value": "22"
+					},
+					{
+						"Key": "GD04",
+						"Value": "4"
+					}
+				]
+			},
+			{
+				"SensorName": "PhotoResistor",
+				"PinLayout": [
+					{
+						"Key":"Data",
+						"Value": 0
+					}
+				]
+			}
+		]
+	}
+}
