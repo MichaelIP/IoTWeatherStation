@@ -20,6 +20,12 @@ namespace McpNetwork {
                 int value;
             };
 
+            template <class T>
+            class KeyValuePair {
+                std::string key;
+                T value;
+            };
+
         }
     }
 

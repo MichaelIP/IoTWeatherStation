@@ -8,6 +8,8 @@
 #define MAX_CHANNELS 5
 #define MAX_THUMBPRINTS 5
 
+#define MAX_MEASURES 20
+
 #define FULL_MAX 10
 
 #endif

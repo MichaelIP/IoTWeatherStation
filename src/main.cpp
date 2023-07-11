@@ -2,6 +2,7 @@
 
 
 #include "sensors.h"
+#include "Sensors/dht11.h"
 #include "Sensors/photoresistor.h"
 
 #include "enums.h"
@@ -78,10 +79,8 @@ void loop() {
       char message[255];
       snprintf(message, sizeof(message), "Reading sensor %s", settings.device.sensors[index].sensorName.c_str());
       loggerManager.debug(message);
-      
       sensors[index]->readData();
     }
-
     
   }
 
@@ -165,6 +164,13 @@ void checkDevices() {
         case McpNetwork::WeatherStation::EDevices::PhotoResistor:
         {
           McpNetwork::WeatherStation::Sensors::PhotoResistor *sensor = new McpNetwork::WeatherStation::Sensors::PhotoResistor(&loggerManager);
+          sensors[index] = sensor;
+          settings.device.sensors[index].isValid = sensors[index]->initialize(settings.device.sensors[index].pinLayout);
+          break;
+        }
+        case McpNetwork::WeatherStation::EDevices::Dht11:
+        {
+          McpNetwork::WeatherStation::Sensors::Dht11 *sensor = new McpNetwork::WeatherStation::Sensors::Dht11(&loggerManager);
           sensors[index] = sensor;
           settings.device.sensors[index].isValid = sensors[index]->initialize(settings.device.sensors[index].pinLayout);
           break;

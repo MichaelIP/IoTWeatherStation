@@ -1,0 +1,51 @@
+{
+	"Wifi": {
+		"SSID": "<WIFI-SSID>",
+		"Password": "<WIFI-PASSWORD>"
+	},
+	"Mqtt": {
+		"HostName": "192.168.1.215",
+		"Port": 8883,
+		"Channels": [
+			{
+				"Key": "Data",
+				"Value": "McpNetwork/Charli/Plugins/WeatherStation/Data"
+			},
+			{
+				"Key": "Events",
+				"Value": "McpNetwork/Charli/Plugins/WeatherStation/Events"
+			}
+		],
+		"CertificateThumbPrints": [
+			"1234567890"
+		]
+	},
+	"Logger": {
+		"Speed": 115200,
+		"LogLevel": "ALL"
+	},
+	"Device": {
+		"DeviceName": "Development-Sensor",
+		"SleepTimeSeconds": 2,
+		"Sensors": [
+			{
+				"SensorName": "DHT11",
+				"PinLayout": [
+					{
+						"Key": "Out",
+						"Value": 13
+					}
+				]
+			},
+			{
+				"SensorName": "PhotoResistor",
+				"PinLayout": [
+					{
+						"Key":"Data",
+						"Value": 0
+					}
+				]
+			}
+		]
+	}
+}
