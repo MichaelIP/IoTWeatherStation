@@ -27,7 +27,7 @@ bool McpNetwork::WeatherStation::Settings::SettingManager::parseSetttings(std::s
     settings.logger.speed = value.as<int>();
 
     value = json["Logger"]["LogLevel"];
-    enumHelper enumHelper;
+    McpNetwork::WeatherStation::EnumHelper enumHelper;
     settings.logger.logLevel = enumHelper.getLogLevel(value.as<std::string>());
     
     // Management of WIFI connection
@@ -85,12 +85,12 @@ bool McpNetwork::WeatherStation::Settings::SettingManager::parseSetttings(std::s
     }
 
 
-    // value = json["SSL"]["caFile"];
-    // settings.ssl.caFile = value.as<std::string>();
+    value = json["SSL"]["caFile"];
+    settings.mqtt.certificateFileName  = value.as<std::string>();
    
-    // if (!readFile(fileName, settings.ssl.caContent)) {
-    //     return false;
-    // }
+    if (!readFile(fileName, settings.mqtt.caContent)) {
+        return false;
+    }
 
     return true;
 

@@ -20,6 +20,8 @@ namespace McpNetwork {
                     std::array<StringKeyValuePair, MAX_CHANNELS> channels;
                     std::array<std::string, MAX_THUMBPRINTS> certificateThumbprints;
 
+                    std::string certificateFileName;
+                    std::string caContent;
                     std::string getChannelPath(std::string name);
             };
         }

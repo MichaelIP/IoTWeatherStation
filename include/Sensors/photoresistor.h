@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #include "sensors.h"
+#include "Models/measureModel.h"
 #include "Tools/KeyValuePairHelper.h"
 
 
@@ -19,7 +20,7 @@ namespace McpNetwork {
                     PhotoResistor(McpNetwork::WeatherStation::Logger::LoggerManager *iLoggerManager);
                     
                     bool initialize(std::array<Models::IntKeyValuePair, MAX_PINS> pinLayout);
-                    void readData();                
+                    Models::MeasureModel readData();                
 
                 private:
                     int sensorPin;

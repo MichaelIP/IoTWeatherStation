@@ -45,7 +45,7 @@ void McpNetwork::WeatherStation::Logger::LoggerManager::trace(McpNetwork::Weathe
 
   if (canLogMessage(logLevel)) {
     
-    enumHelper enumHelper;
+    McpNetwork::WeatherStation::EnumHelper enumHelper;
 
     char fullMessage[255];
     std::string currentDateTime = ntpHelper.getDateTime();

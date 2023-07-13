@@ -1,14 +1,16 @@
 #include <Arduino.h>
 
-
 #include "sensors.h"
 #include "Sensors/dht11.h"
 #include "Sensors/photoresistor.h"
+
+#include "Models/measureModel.h"
 
 #include "enums.h"
 #include "logger.h"
 #include "settings.h"
 #include "ntp.h"
+#include "mqtt.h"
 
 #ifdef WITH_GDB
 #include <GDBStub.h>
@@ -16,22 +18,25 @@
 
 struct McpNetwork::WeatherStation::Models::settingsModel settings;
 
-McpNetwork::WeatherStation::Settings::SettingManager settingsManager;
+McpNetwork::WeatherStation::Mqtt::MqttManager mqttManager;
 McpNetwork::WeatherStation::Logger::LoggerManager loggerManager;
+McpNetwork::WeatherStation::Settings::SettingManager settingsManager;
 
+McpNetwork::WeatherStation::EnumHelper enumHelper;
+McpNetwork::WeatherStation::Tools::NtpHelper ntpHelper;
 McpNetwork::WeatherStation::Tools::WifiManager *wifiManager;
-McpNetwork::WeatherStation::enumHelper enumHelper;
 
 McpNetwork::WeatherStation::Sensors::ISensor *sensors[MAX_SENSORS];
-
 
 void checkDevices();
 void sleepForEver();
 void displaySettings();
+void publishMessage(std::string message);
+
+McpNetwork::WeatherStation::Models::MeasureModel readSensors();
 
 void setup() {
 
-  Serial.begin(115600);
   #ifdef WITH_GDB
   gdbstub_init();
   #endif
@@ -48,7 +53,6 @@ void setup() {
   }
   
   wifiManager = new McpNetwork::WeatherStation::Tools::WifiManager(settings.wiFi.ssid, settings.wiFi.password);
-  McpNetwork::WeatherStation::Tools::NtpHelper ntpHelper;
   ntpHelper.initialize(wifiManager);
 
   loggerManager.initialize(&settings.logger);
@@ -61,7 +65,7 @@ void setup() {
   loggerManager.info("\\=============================================/");
 
   displaySettings();
-  
+  mqttManager.initialize(&settings, &loggerManager);
 
   checkDevices();
 
@@ -69,23 +73,84 @@ void setup() {
 
 void loop() {
   
-  loggerManager.debug("Looping...");
+  McpNetwork::WeatherStation::Models::MeasureModel measure = readSensors();
+
+  loggerManager.info("Building MQTT message");
+  std::string mqttMessage = measure.serializeMesaures();
+  loggerManager.debug(mqttMessage.c_str());
+
+  loggerManager.info("Sending MQTT message");
+  publishMessage(mqttMessage);
+
+  loggerManager.info("Done. Going to deepsleep");
+  delay(settings.device.sleepTimeSeconds * 1000);
+}
+
+McpNetwork::WeatherStation::Models::MeasureModel readSensors() {
+
+  McpNetwork::WeatherStation::Models::MeasureModel result;
+  result.deviceName = settings.device.deviceName;
+  result.dateMeasure = ntpHelper.getDateTime();
+  result.capability = (int)McpNetwork::WeatherStation::ECapabilities::None;
+
+  int measureNb = 0;
+  loggerManager.info("Reading sensors.");
   for(int index = 0; index < MAX_SENSORS; index++) {
     
     if (settings.device.sensors[index].sensorName.empty()) {
       break;
     }
+
     if (settings.device.sensors[index].isValid) {
       char message[255];
-      snprintf(message, sizeof(message), "Reading sensor %s", settings.device.sensors[index].sensorName.c_str());
+      snprintf(message, sizeof(message), " > Sensor %s", settings.device.sensors[index].sensorName.c_str());
       loggerManager.debug(message);
-      sensors[index]->readData();
+
+      McpNetwork::WeatherStation::Models::MeasureModel sensorMeasure = sensors[index]->readData();
+      
+      result.capability += sensorMeasure.capability;
+
+      int indexMeasure = 0;
+      while(sensorMeasure.measures.at(indexMeasure).key != enumHelper.getCapability(McpNetwork::WeatherStation::ECapabilities::None)) {
+        result.measures.at(measureNb++) = sensorMeasure.measures.at(indexMeasure++);
+      }
+
     }
-    
+
   }
 
-  delay(settings.device.sleepTimeSeconds * 1000);
+  return result;
+
 }
+
+void publishMessage(std::string message) {
+
+  
+  loggerManager.debug("Connecting to WIFI");
+  if (wifiManager->connectWifi()) {
+    loggerManager.debug("Veryfing TLS connection");    
+    if (mqttManager.verifyTls()) {
+      loggerManager.debug("Connecting to MQTT server");
+      if (mqttManager.connect()) {
+        loggerManager.debug("Publishing message");
+        mqttManager.publish(settings.mqtt.getChannelPath("Data"), message);
+      } 
+      else {
+        loggerManager.error("Error while veryfing TLS connection");
+      }
+      mqttManager.disconnect();
+    }    
+    else {
+      loggerManager.error("Unable to connect to MQTT server");
+    }
+    wifiManager->disconnectWifi();
+  }
+  else {
+    loggerManager.error("Unable to connect to WIFI");
+  };
+
+}
+
 
 void sleepForEver() {
   loggerManager.info("Going to deep sleep mode until reset");

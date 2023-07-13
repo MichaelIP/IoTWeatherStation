@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include "enums.h"
+#include "Models/measureModel.h"
 #include "Sensors/photoresistor.h"
 
 
@@ -25,12 +27,17 @@ bool McpNetwork::WeatherStation::Sensors::PhotoResistor::initialize(std::array<M
 
 }
 
-void McpNetwork::WeatherStation::Sensors::PhotoResistor::readData() {
+McpNetwork::WeatherStation::Models::MeasureModel McpNetwork::WeatherStation::Sensors::PhotoResistor::readData() {
 
-    char message[255];
-    loggerManager->debug("Reading PhotoResistor sensor");
-    
+    Models::MeasureModel result;
+    result.capability = (int)ECapabilities::Light;
+
+    loggerManager->debug("Reading PhotoResistor sensor");    
     sensorValue = analogRead(sensorPin);
-    snprintf(message, sizeof(message), "Value read: %i", sensorValue);
-    loggerManager->debug(message);
+
+    result.measures.at(0).key = enumHelper.getCapability(ECapabilities::Light);
+    result.measures.at(0).value = (float)sensorValue;
+
+    return result;
+
 }

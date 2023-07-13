@@ -47,7 +47,7 @@ namespace McpNetwork {
             Wh1080,
         };        
         
-        class enumHelper {
+        class EnumHelper {
             public:
                 McpNetwork::WeatherStation::ELogLevel getLogLevel(std::string value) {
                     std::unordered_map<std::string, McpNetwork::WeatherStation::ELogLevel>::const_iterator result = logLevelMap.find(toLower(value));
@@ -67,7 +67,7 @@ namespace McpNetwork {
                     std::string result = getLogLevel(ELogLevel::Off);
                     return result;
                 }
-                
+
                 McpNetwork::WeatherStation::EDevices getDeviceType(std::string value) {
                     
                     std::unordered_map<std::string, McpNetwork::WeatherStation::EDevices>::const_iterator result = devicesMap.find(toLower(value));
@@ -79,6 +79,14 @@ namespace McpNetwork {
                     }
                 }
 
+                std::string getCapability(McpNetwork::WeatherStation::ECapabilities capability) {
+                    for (const auto& [key, value] : capabilitiesMap)
+                    if (value == capability) {
+                        return key;
+                    }
+                    std::string result = getCapability(ECapabilities::None);
+                    return result;
+                }
 
             private:
                 std::unordered_map<std::string, McpNetwork::WeatherStation::ELogLevel> logLevelMap = { 

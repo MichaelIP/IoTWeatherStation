@@ -13,15 +13,18 @@ namespace McpNetwork {
 
         namespace Models {
 
-            struct singleMeasureModel {
+            class MeasureModel {
+                public:
+                    MeasureModel();
+                    std::string serializeMesaures();
+                    
+                    int capability;
+                    std::string deviceName;
+                    std::string dateMeasure;
+                    std::array<KeyValuePair<float>, MAX_MEASURES> measures;
+                private:
+                    McpNetwork::WeatherStation::EnumHelper enumHelper;
 
-            };
-
-            struct MeasureModel {
-                std::string deviceName;
-                std::string dateMeasure;
-                int capability;
-                std::array<std::string, MAX_MEASURES> measures;
             };
         }
     }

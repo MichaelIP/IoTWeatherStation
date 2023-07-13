@@ -4,8 +4,10 @@
 #include <Arduino.h>
 
 #include "const.h"
+#include "enums.h"
 #include "logger.h"
-#include "Models/KeyValuePair.h"
+#include "Models/keyValuePair.h"
+#include "Models/measureModel.h"
 
 namespace McpNetwork {
 
@@ -18,9 +20,10 @@ namespace McpNetwork {
 
                 public:
                     virtual bool initialize(std::array<Models::IntKeyValuePair, MAX_PINS> pinLayout) = 0;
-                    virtual void readData() = 0;
+                    virtual Models::MeasureModel readData() = 0;
                 
                 protected:
+                    McpNetwork::WeatherStation::EnumHelper enumHelper;
                     McpNetwork::WeatherStation::Logger::LoggerManager *loggerManager;
 
             };
